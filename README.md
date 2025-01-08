@@ -1,3 +1,5 @@
+### This version is for integration with pgvector
+
 <div align="center">
 
 # kotaemon
