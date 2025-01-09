@@ -108,7 +108,8 @@ class PostgresPGVectorStore:
         metadatas: list[dict] | None = None,
         ids: list[str] | None = None
     ) -> list[str]:
-        """Add embeddings to vector store"""
+        """Add embeddings to vector store, postgres pgvector"""
+        print(f'Total number of embeddings : {len(embeddings)}')
         nodes = []
         for i, emb in enumerate(embeddings):
             # Extract embedding correctly based on type
@@ -142,5 +143,5 @@ class PostgresPGVectorStore:
 
     def delete(self, ids: list[str], **kwargs):
         print(f'***** PostgresPGVectorStore delete method *****')
-        print(f'***** ids {ids} *****')
+        print(f'***** ids deleted from vector store:\n {ids} \n total : {len(ids)} ids *****')
         self.vector_store.delete_nodes(ids)
