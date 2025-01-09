@@ -5,6 +5,7 @@ from .lancedb import LanceDBVectorStore
 from .milvus import MilvusVectorStore
 from .qdrant import QdrantVectorStore
 from .simple_file import SimpleFileVectorStore
+from .postgres_pgvector import PostgresPGVectorStore
 
 __all__ = [
     "BaseVectorStore",
@@ -14,4 +15,5 @@ __all__ = [
     "LanceDBVectorStore",
     "MilvusVectorStore",
     "QdrantVectorStore",
+    "PostgresPGVectorStore",
 ]
