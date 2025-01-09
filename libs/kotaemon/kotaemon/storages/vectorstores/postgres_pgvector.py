@@ -61,7 +61,7 @@ class PostgresPGVectorStore:
         logging.basicConfig(stream=sys.stdout, level=logging.INFO)
         logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
 
-        print(f'***** initializing PostgresPGVectorStore *****')
+        print(f'***** PostgresPGVectorStore: Initializing *****')
 
 
         connection_string = "postgresql://postgres:password@localhost:5432"
