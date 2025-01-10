@@ -25,28 +25,28 @@ class VectorDBRetriever(BaseRetriever):
         super().__init__()
 
 
-    def retrieve_for_kotaemon(self, query_bundle: QueryBundle) -> tuple[list[list[float]], list[float], list[str]]:
-        """Retrieve only for the kotaemon format."""
-        query_embedding = self._embed_model.get_query_embedding(
-            query_bundle.query_str
-        )
-        vector_store_query = VectorStoreQuery(
-            query_embedding=query_embedding,
-            similarity_top_k=self._similarity_top_k,
-            mode=self._query_mode,
-        )
-        query_result = self._vector_store.query(vector_store_query)
+    # def retrieve_for_kotaemon(self, query_bundle: QueryBundle) -> tuple[list[list[float]], list[float], list[str]]:
+    #     """Retrieve only for the kotaemon format."""
+    #     query_embedding = self._embed_model.get_query_embedding(
+    #         query_bundle.query_str
+    #     )
+    #     vector_store_query = VectorStoreQuery(
+    #         query_embedding=query_embedding,
+    #         similarity_top_k=self._similarity_top_k,
+    #         mode=self._query_mode,
+    #     )
+    #     query_result = self._vector_store.query(vector_store_query)
 
         
-        nodes, scores, ids = [], [], []
-        for index, node in enumerate(query_result.nodes):
-            score: Optional[float] = None
-            if query_result.similarities is not None:
-                score = query_result.similarities[index]
-            nodes.append(node)
-            scores.append(score)
-            ids.append(query_result.ids[index])
-        return nodes, scores, ids
+    #     nodes, scores, ids = [], [], []
+    #     for index, node in enumerate(query_result.nodes):
+    #         score: Optional[float] = None
+    #         if query_result.similarities is not None:
+    #             score = query_result.similarities[index]
+    #         nodes.append(node)
+    #         scores.append(score)
+    #         ids.append(query_result.ids[index])
+    #     return nodes, scores, ids
 
 
     def query(
