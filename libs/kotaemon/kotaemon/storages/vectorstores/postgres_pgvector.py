@@ -109,7 +109,7 @@ class PostgresPGVectorStore:
         ids: list[str] | None = None
     ) -> list[str]:
         """Add embeddings to vector store, postgres pgvector"""
-        print(f'Total number of embeddings : {len(embeddings)}')
+        print(f'Total number of embeddings added to vector store: {len(embeddings)}')
         nodes = []
         for i, emb in enumerate(embeddings):
             # Extract embedding correctly based on type
@@ -137,6 +137,7 @@ class PostgresPGVectorStore:
             **kwargs,
     ) -> tuple[list[list[float]], list[float], list[str]]:
         print(f'***** PostgresPGVectorStore query method *****')
+        print(f'***** Fetching {top_k} embeddings from vector store, pgvector *****')
         query_engine = RetrieverQueryEngine.from_args(self.retriever, llm=self.llm)
         return query_engine.retriever.query(embedding, top_k, ids)
         
