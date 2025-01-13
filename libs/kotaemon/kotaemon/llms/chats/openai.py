@@ -181,7 +181,7 @@ class BaseChatOpenAI(ChatLLM):
             ],
             logprobs=logprobs,
         )
-
+        print(f"*****  LLMInterface output: {output} *****")
         return output
 
     def prepare_client(self, async_version: bool = False):
