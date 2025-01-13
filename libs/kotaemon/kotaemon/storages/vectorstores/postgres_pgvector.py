@@ -1,3 +1,6 @@
+# See here for more details:
+# https://docs.llamaindex.ai/en/stable/api_reference/storage/vector_store/postgres/
+
 import os
 from typing import Any, Optional, cast
 
@@ -19,10 +22,12 @@ from llama_index.core.schema import TextNode  # Use TextNode instead of Node
 from llama_index.core.query_engine import RetrieverQueryEngine
 
 # OpenAI dependencies
-from llama_index.llms.openai import OpenAI
-from llama_index.embeddings.openai import OpenAIEmbedding
+# from llama_index.llms.openai import OpenAI
+# from llama_index.embeddings.openai import OpenAIEmbedding
 
-from .retriever import VectorDBRetriever
+# from .retriever import VectorDBRetriever
+
+from llama_index.core.vector_stores import VectorStoreQuery
 
 # model constants
 embed_model_name = "text-embedding-3-small"
@@ -97,9 +102,9 @@ class PostgresPGVectorStore:
         # self.url = make_url(connection_string)
         # print(f"url -- host: {self.url.host}, port: {self.url.port}, user: {self.url.username}, password: {self.url.password} ")
 
-        self.embed_model = OpenAIEmbedding(model=embed_model_name) 
-        self.llm = OpenAI(model=generating_model_name) # api_key="some key",  # uses OPENAI_API_KEY env var by default
-        self.retriever = VectorDBRetriever(vector_store=self.vector_store, embed_model=self.embed_model)
+        # self.embed_model = OpenAIEmbedding(model=embed_model_name) 
+        # self.llm = OpenAI(model=generating_model_name) # api_key="some key",  # uses OPENAI_API_KEY env var by default
+        # self.retriever = VectorDBRetriever(vector_store=self.vector_store, embed_model=self.embed_model)
 
 
     def add(
@@ -129,6 +134,18 @@ class PostgresPGVectorStore:
         return self.vector_store.add(nodes=nodes)
     
    
+    # def query(
+    #         self,
+    #         embedding: list[float],
+    #         top_k: int = 1,
+    #         ids: Optional[list[str]] = None,
+    #         **kwargs,
+    # ) -> tuple[list[list[float]], list[float], list[str]]:
+    #     print(f'***** PostgresPGVectorStore query method *****')
+    #     print(f'***** Fetching {top_k} embeddings from vector store, pgvector *****')
+    #     query_engine = RetrieverQueryEngine.from_args(self.retriever, llm=self.llm)
+    #     return query_engine.retriever.query(embedding, top_k, ids)
+    
     def query(
             self,
             embedding: list[float],
@@ -138,11 +155,25 @@ class PostgresPGVectorStore:
     ) -> tuple[list[list[float]], list[float], list[str]]:
         print(f'***** PostgresPGVectorStore query method *****')
         print(f'***** Fetching {top_k} embeddings from vector store, pgvector *****')
-        query_engine = RetrieverQueryEngine.from_args(self.retriever, llm=self.llm)
-        return query_engine.retriever.query(embedding, top_k, ids)
-        
 
+        vector_store_query = VectorStoreQuery(
+            query_embedding=embedding,
+            similarity_top_k=top_k,
+            mode="default",
+        )
+        query_result = self.vector_store.query(vector_store_query)
+
+        nodes, scores, ids = [], [], []
+        for index, node in enumerate(query_result.nodes):
+            score: Optional[float] = None
+            if query_result.similarities is not None:
+                score = query_result.similarities[index]
+            nodes.append(node)
+            scores.append(score)
+            ids.append(query_result.ids[index])
+        return nodes, scores, ids
+        
     def delete(self, ids: list[str], **kwargs):
         print(f'***** PostgresPGVectorStore delete method *****')
-        print(f'***** ids deleted from vector store:\n {ids} \n total : {len(ids)} ids *****')
-        self.vector_store.delete_nodes(ids)
+        print(f'***** ids deleted from vector store:\n {ids} \n total deleted ids: {len(ids)} *****')
+        self.vector_store.delete_nodes(ids)  # RETURNS: None
