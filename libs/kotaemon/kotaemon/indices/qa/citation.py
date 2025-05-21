@@ -37,7 +37,8 @@ class CitationPipeline(BaseComponent):
         }
         llm_kwargs = {
             "tools": [{"type": "function", "function": function}],
-            "tool_choice": "required",
+            # "tool_choice": "required",
+            "tool_choice": "auto",
             "tools_pydantic": [CiteEvidence],
         }
         messages = [
