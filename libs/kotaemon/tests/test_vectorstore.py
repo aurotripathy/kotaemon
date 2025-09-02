@@ -2,7 +2,7 @@ import json
 import os
 
 import pytest
-
+from unittest.mock import MagicMock 
 from kotaemon.base import DocumentWithEmbedding
 from kotaemon.storages import (
     ChromaVectorStore,
@@ -10,6 +10,7 @@ from kotaemon.storages import (
     MilvusVectorStore,
     QdrantVectorStore,
     SimpleFileVectorStore,
+    PostgresPGVectorStore
 )
 
 
@@ -366,3 +367,52 @@ class TestQdrantVectorStore:
             # Since no docs were added, the collection should not exist yet
             # and thus the count function should raise an exception
             db2.count()
+
+class TestPostgresVectorStore:
+    def test_add(self):
+        
+        db = PostgresPGVectorStore()
+        
+        db.vector_store = MagicMock()
+        db.vector_store.add.return_value = ["1", "2"]  
+        
+        embeddings = [[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]]
+        metadatas = [{"a": 1, "b": 2}, {"a": 3, "b": 4}]
+        ids = ["1", "2"]
+        
+        output = db.add(embeddings=embeddings, metadatas=metadatas, ids=ids)
+        
+        db.vector_store.add.assert_called_once()  
+        assert output == ids, f"Expected {ids}, but got {output}"
+
+    def test_query(self):
+        db = PostgresPGVectorStore()
+        db.vector_store = MagicMock()
+
+        # Define a fake response from vector store
+        fake_query_result = MagicMock()
+        fake_query_result.nodes = [[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]]
+        fake_query_result.similarities = [0.95, 0.89]
+        fake_query_result.ids = ["123", "456"]
+
+        # Mock the query method to return the fake response
+        db.vector_store.query.return_value = fake_query_result
+
+        embedding = [0.1, 0.2, 0.3]
+        top_k = 2
+        nodes, scores, ids = db.query(embedding=embedding, top_k=top_k)
+        db.vector_store.query.assert_called_once() 
+        assert nodes == [[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]], f"Unexpected nodes: {nodes}"
+        assert scores == [0.95, 0.89], f"Unexpected scores: {scores}"
+        assert ids == ["123", "456"], f"Unexpected ids: {ids}"
+    
+    def test_delete(self):
+        db = PostgresPGVectorStore()
+
+        db.vector_store = MagicMock()
+
+        ids_to_delete = ["123", "456", "789"]
+
+        db.delete(ids=ids_to_delete)
+        db.vector_store.delete_nodes.assert_called_once_with(ids_to_delete)
+    

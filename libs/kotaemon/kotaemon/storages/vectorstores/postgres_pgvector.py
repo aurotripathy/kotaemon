@@ -69,7 +69,7 @@ class PostgresPGVectorStore:
         print(f'***** PostgresPGVectorStore: Initializing *****')
 
 
-        connection_string = "postgresql://postgres:password@localhost:5432"
+        connection_string = "postgresql://postgres:root@localhost:5432"
         db_name = "vector_db"
         conn = psycopg2.connect(connection_string)
         conn.autocommit = True
